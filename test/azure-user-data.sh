@@ -5,6 +5,7 @@ yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 yum install -y yum-utils
 yum-config-manager --enable remi-php74
 yum-config-manager --disable remi-php54
+touch /var/www/html/health.html
 yum install -y php php-cli php-mysql httpd
 yum install -y wget
 wget https://ko.wordpress.org/latest-ko_KR.tar.gz
