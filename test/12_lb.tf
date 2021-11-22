@@ -10,9 +10,10 @@ resource "azurerm_lb" "jinwoo-lb" {
 }
 
 resource "azurerm_lb_backend_address_pool" "jinwoo-lb-back" {
-  resource_group_name = azurerm_resource_group.jinwoo-rg.name
+  #resource_group_name = azurerm_resource_group.jinwoo-rg.name
   loadbalancer_id     = azurerm_lb.jinwoo-lb.id
   name                = "jinwoo-lb-back"
+
 }
 
 resource "azurerm_lb_probe" "jinwoo-lb-probe" {

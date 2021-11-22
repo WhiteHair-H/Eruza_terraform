@@ -13,10 +13,19 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   name = "jinwoo-vmss"
   location = azurerm_resource_group.jinwoo-rg.location
   resource_group_name = azurerm_resource_group.jinwoo-rg.name
-  health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
 
-  automatic_os_upgrade = true
-  upgrade_policy_mode = "Rolling"
+   automatic_os_upgrade = true
+   upgrade_policy_mode = "Manual"
+
+  # rolling_upgrade_policy {
+  #   max_batch_instance_percent              = 20
+  #   max_unhealthy_instance_percent          = 20
+  #   max_unhealthy_upgraded_instance_percent = 5
+  #   pause_time_between_batches              = "PT0S"
+  # }
+  
+ health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
+
 
   sku {
     name = "Standard_F2"
