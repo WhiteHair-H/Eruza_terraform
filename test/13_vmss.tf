@@ -1,21 +1,36 @@
 resource "azurerm_public_ip" "jinwoo-vmss-pub" {
-  name = "jinwoo-vmss-pub"
+  name                = "jinwoo-vmss-pub"
   resource_group_name = azurerm_resource_group.jinwoo-rg.name
-  location = azurerm_resource_group.jinwoo-rg.location
-  allocation_method = "Static"
+  location            = azurerm_resource_group.jinwoo-rg.location
+  allocation_method   = "Static"
 }
 
 output "vmss-pubip" {
   value = azurerm_public_ip.jinwoo-vmss-pub.id
 }
 
+resource "azurerm_lb_backend_address_pool" "jinwoo-lb-back" {
+  resource_group_name = azurerm_resource_group.jinwoo-rg.name
+  loadbalancer_id     = azurerm_lb.jinwoo-lb.id
+  name                = "jinwoo-lb-back"
+}
+
+resource "azurerm_lb_probe" "jinwoo-lb-probe" {
+  resource_group_name = azurerm_resource_group.jinwoo-rg.name
+  loadbalancer_id     = azurerm_lb.jinwoo-lb.id
+  name                = "jinwoo-lb-probe"
+  protocol            = "Tcp"
+  #request_path        = "/health.html"
+  port                = 80
+}
+
 resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
-  name = "jinwoo-vmss"
-  location = azurerm_resource_group.jinwoo-rg.location
+  name                = "jinwoo-vmss"
+  location            = azurerm_resource_group.jinwoo-rg.location
   resource_group_name = azurerm_resource_group.jinwoo-rg.name
 
-   automatic_os_upgrade = true
-   upgrade_policy_mode = "Manual"
+  automatic_os_upgrade = true
+  upgrade_policy_mode  = "Manual"
 
   # rolling_upgrade_policy {
   #   max_batch_instance_percent              = 20
@@ -23,13 +38,13 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   #   max_unhealthy_upgraded_instance_percent = 5
   #   pause_time_between_batches              = "PT0S"
   # }
-  
- health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
+
+  health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
 
 
   sku {
-    name = "Standard_F2"
-    tier = "Standard"
+    name     = "Standard_F2"
+    tier     = "Standard"
     capacity = 2
   }
 
@@ -49,8 +64,8 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
 
   os_profile {
     computer_name_prefix = "jinwoo-vmss"
-    admin_username = "haha"
-    admin_password = "It12345!"
+    admin_username       = "haha"
+    admin_password       = "It12345!"
   }
 
   os_profile_linux_config {
@@ -58,14 +73,28 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   }
 
   network_profile {
-    name = "jinwoo-vnet-profile"
+    name    = "jinwoo-vnet-profile"
     primary = true
 
     ip_configuration {
-      name = "jinwoo-ip-conf"
-      primary = true
-      subnet_id = azurerm_subnet.jinwoo-subnet-02.id
+      name                                   = "jinwoo-ip-conf"
+      primary                                = true
+      subnet_id                              = azurerm_subnet.jinwoo-subnet-02.id
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.jinwoo-lb-back.id]
     }
   }
+
+  #   extension {
+  #     name = "jinwoo-custom"
+  #     publisher = "Microsoft.Azure.Extensions"
+  #     type = "CustomScript"
+  #     type_handler_version = "2.0"
+  #     auto_upgrade_minor_version = true
+  # #    settings = jsonencode({ "commandToExecute" = "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.jinwoo-data.rendered)}'))" })
+  #     settings = <<SETTINGS
+  #   {
+  #       "script": "${filebase64("azure-user-data.sh")}"
+  #   }
+  #   SETTINGS
+  #   }
 }
