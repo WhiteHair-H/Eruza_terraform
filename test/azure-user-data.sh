@@ -14,7 +14,8 @@ chown apache.apache /var/www/html/*
 sed -i 's/DirectoryIndex index.html/DirectoryIndex index.html index.php/g' /etc/httpd/conf/httpd.conf
 cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
 sed -i 's/database_name_here/wordpress/g' /var/www/html/wp-config.php
-sed -i 's/username_here/root/g' /var/www/html/wp-config.php
+sed -i 's/username_here/haha@jinwoo-db-server/g' /var/www/html/wp-config.php
 sed -i 's/password_here/It12345!/g' /var/www/html/wp-config.php
-sed -i 's/localhost/10.17.160.5/g' /var/www/html/wp-config.php
-systemctl start httpd
+sed -i 's/localhost/jinwoo-db-server.mysql.database.azure.com/g' /var/www/html/wp-config.php
+systemctl restart httpd
+systemctl enable httpd

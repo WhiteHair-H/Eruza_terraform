@@ -8,9 +8,9 @@ resource "azurerm_monitor_autoscale_setting" "jinwoo-as" {
     name = "jinwoo-profile"
 
     capacity {
-      default = 1
-      minimum = 1
-      maximum = 5
+      default = 2
+      minimum = 2
+      maximum = 4
     }
 
     rule {

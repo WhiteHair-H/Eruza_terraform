@@ -9,20 +9,19 @@ output "vmss-pubip" {
   value = azurerm_public_ip.jinwoo-vmss-pub.id
 }
 
-resource "azurerm_lb_backend_address_pool" "jinwoo-lb-back" {
-  resource_group_name = azurerm_resource_group.jinwoo-rg.name
-  loadbalancer_id     = azurerm_lb.jinwoo-lb.id
-  name                = "jinwoo-lb-back"
-}
+# data "template_file" "cloudconfig" {
+#   template = file("/azure-user-data.sh")
+# }
 
-resource "azurerm_lb_probe" "jinwoo-lb-probe" {
-  resource_group_name = azurerm_resource_group.jinwoo-rg.name
-  loadbalancer_id     = azurerm_lb.jinwoo-lb.id
-  name                = "jinwoo-lb-probe"
-  protocol            = "Tcp"
-  #request_path        = "/health.html"
-  port                = 80
-}
+# data "template_cloudinit_config" "config" {
+#   gzip = true
+#   base64_encode = true
+
+#   part {
+#     content_type = "text/cloud-config"
+#     content = data.template_file.cloudconfig.rendered
+#   }
+# }
 
 resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   name                = "jinwoo-vmss"
@@ -38,9 +37,8 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   #   max_unhealthy_upgraded_instance_percent = 5
   #   pause_time_between_batches              = "PT0S"
   # }
-
+  
   health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
-
 
   sku {
     name     = "Standard_F2"
@@ -66,6 +64,7 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
     computer_name_prefix = "jinwoo-vmss"
     admin_username       = "haha"
     admin_password       = "It12345!"
+#    custom_data = data.template_cloudinit_config.config.rendered
   }
 
   os_profile_linux_config {
@@ -75,6 +74,7 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
   network_profile {
     name    = "jinwoo-vnet-profile"
     primary = true
+    network_security_group_id = azurerm_network_security_group.jinwoo-nsg-web.id
 
     ip_configuration {
       name                                   = "jinwoo-ip-conf"
@@ -84,17 +84,4 @@ resource "azurerm_virtual_machine_scale_set" "jinwoo-vmss" {
     }
   }
 
-  #   extension {
-  #     name = "jinwoo-custom"
-  #     publisher = "Microsoft.Azure.Extensions"
-  #     type = "CustomScript"
-  #     type_handler_version = "2.0"
-  #     auto_upgrade_minor_version = true
-  # #    settings = jsonencode({ "commandToExecute" = "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.jinwoo-data.rendered)}'))" })
-  #     settings = <<SETTINGS
-  #   {
-  #       "script": "${filebase64("azure-user-data.sh")}"
-  #   }
-  #   SETTINGS
-  #   }
 }
