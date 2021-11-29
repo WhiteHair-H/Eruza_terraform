@@ -4,7 +4,7 @@ resource "azurerm_lb" "jinwoo-lb" {
   resource_group_name = azurerm_resource_group.jinwoo-rg.name
 
   frontend_ip_configuration {
-    name                 = "front-conf"
+    name                 = "front-ip"
     public_ip_address_id = azurerm_public_ip.jinwoo-vmss-pub.id
   }
 }
@@ -33,6 +33,6 @@ resource "azurerm_lb_rule" "jinwoo-lb-rule" {
   backend_address_pool_id        = azurerm_lb_backend_address_pool.jinwoo-lb-back.id
   frontend_port                  = 80
   backend_port                   = 80
-  frontend_ip_configuration_name = "front-conf"
+  frontend_ip_configuration_name = "front-ip"
   protocol                       = "Tcp"
 }
