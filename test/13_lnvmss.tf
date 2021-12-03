@@ -6,8 +6,10 @@ resource "azurerm_linux_virtual_machine_scale_set" "jinwoo-vmss" {
   instances           = 2
   admin_username      = "haha"
   admin_password      = "It12345678910!"
-
-  #  health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
+  zones = [1,2]
+  
+  upgrade_mode = "Automatic"
+  health_probe_id = azurerm_lb_probe.jinwoo-lb-probe.id
 
   disable_password_authentication = false
 
